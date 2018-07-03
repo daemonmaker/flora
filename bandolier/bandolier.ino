@@ -93,7 +93,7 @@ void loop() {
 }
 
 void LEDLoop() {
-  ++wheelIdx;
+  --wheelIdx;
   wheelIdx % 256;
 
   LEDDeltaT = 10;
@@ -230,4 +230,31 @@ void colorWipe(uint32_t c) {
   currentPixelIdx %= strip1.numPixels();
 }
 
+// Slightly different, this makes the rainbow equally distributed throughout
+void rainbowCycle() {
+  //int16_t i = strip1.numPixels()-1;
+  for(int16_t i=0; i < strip1.numPixels(); i++) {
+  //for(; i > -1; i = i - 1) {
+    strip1.setPixelColor(i, Wheel(((i * 256 / strip1.numPixels()) + wheelIdx) & 255));
+    strip2.setPixelColor(i, Wheel(((i * 256 / strip2.numPixels()) + wheelIdx) & 255));
+    //strip1.setPixelColor(i, Wheel(((i * 256 / strip1.numPixels())) & 255));
+    //strip2.setPixelColor(i, Wheel(((i * 256 / strip2.numPixels())) & 255));
+  }
+  strip1.show();
+  strip2.show();
+}
 
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return strip1.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return strip1.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return strip1.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
